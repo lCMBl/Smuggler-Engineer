@@ -47,6 +47,13 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\scripts\doorRoomChange.js" />
+     <Compile Include="Assets\scripts\mission.js" />
+     <Compile Include="Assets\scripts\resource.js" />
+     <Compile Include="Assets\scripts\resourceConsumer.js" />
+     <Compile Include="Assets\scripts\resourceGenerator.js" />
+     <Compile Include="Assets\scripts\resourcePasser.js" />
+     <Compile Include="Assets\scripts\ship.js" />
+     <Compile Include="Assets\scripts\shipComponent.js" />
      <None Include="Assets\Standard Assets\Fonts\OpenSans\License!.txt" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
