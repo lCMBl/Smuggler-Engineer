@@ -20,7 +20,7 @@ function OnMouseOver() {
 		ChangeRoom(player, destinationRoom);
 		// play fade-in animation here
 		// disable this room
-		transform.parent.gameObject.SetActive(false);
+//		transform.parent.gameObject.SetActive(false);
 	}
 }
 
@@ -29,7 +29,7 @@ function ChangeRoom(player : GameObject, destination : GameObject) {
 	var relativePosition = RelativePosition(transform.parent.gameObject, player);
 	
 	Debug.Log("relative position is: " + relativePosition);
-	destination.SetActive(true);
+//	destination.SetActive(true);
 	player.transform.position = destination.transform.position + relativePosition;
 //	player.transform.position.y += 1; // TODO find better way to fix player falling through floor
 }
