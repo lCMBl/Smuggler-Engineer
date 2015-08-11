@@ -12,7 +12,7 @@ var maxStorage = 100.0;
 var working : boolean = false;
 var timer : float = 0.0;
 function Update() {
-	if (storage >= 0 ) {
+	if (storage > 0 ) {
 		if ( timer < Time.time) {
 			storage -= rate;
 			timer = Time.time + 1;
