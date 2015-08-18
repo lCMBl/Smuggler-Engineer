@@ -8,8 +8,16 @@
 // for now, keeps track of engine and computer explicitly as the critical systems.
 var evasionChance : int = 0;
 var calculationTimeRemaining : float = 60.0;
-var engine : GameObject;
-var computer : GameObject; //TODO make the components add themselves to the appropriate variable
+var engine : GameObject; 
+var computer : GameObject; 
+var components;
+var criticalComponents; // both are arrays of components. critical components must be intact to jump.
+
+function Start() {
+	components = new Array();
+	criticalComponents = new Array();
+}
+
 
 function Update () {
 	//TODO Refactor this!
@@ -35,4 +43,22 @@ function HyperspaceJump () {
 // pick room, then check children, and randomly select conduit for damage
 function TakeDamage() {
 
+}
+
+function AddShipComponent(component : GameObject) {
+	components.Push(component);
+	// add special components to slots.
+	var type :ComponentType = component.GetComponent("shipComponent").componentType;
+	if (type == ComponentType.engine) {
+		engine = component;
+	} else if (type == ComponentType.computer) {
+		computer = component;
+	}
+	
+	Debug.Log("adding component: " + component);
+}
+
+function AddShipCriticalComponent(component : GameObject) {
+	AddShipComponent(component);
+	criticalComponents.Push(component);
 }
