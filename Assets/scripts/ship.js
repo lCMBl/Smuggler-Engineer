@@ -10,12 +10,14 @@ var evasionChance : int = 0;
 var calculationTimeRemaining : float = 60.0;
 var engine : GameObject; 
 var computer : GameObject; 
+var currentMission : GameObject;
 var components;
 var criticalComponents; // both are arrays of components. critical components must be intact to jump.
 
 function Start() {
 	components = new Array();
 	criticalComponents = new Array();
+	currentMission = GameObject.FindGameObjectWithTag("Mission");
 }
 
 
@@ -36,6 +38,7 @@ function HyperspaceJump () {
 		if (engineWorking && computerWorking) {
 			Debug.Log("Jumped to Hyperspace!");
 			// complete mission here.
+			currentMission.SendMessage("CompleteMission");
 		}
 	} 
 }

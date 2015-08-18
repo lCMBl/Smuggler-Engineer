@@ -10,7 +10,7 @@ var ship : GameObject;
 
 function Start () {
 	ship = GameObject.FindGameObjectWithTag("Ship");
-	Debug.Log("Ship is: " + ship);
+	Debug.Log("Ship is: " + ship + ", current object is: " + gameObject);
 	if (critical) {
 		Debug.Log("Ship is: " + ship);
 		ship.SendMessage("AddShipCriticalComponent", gameObject);
