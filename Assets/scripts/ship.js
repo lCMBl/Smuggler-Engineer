@@ -27,6 +27,7 @@ function Update () {
 		calculationTimeRemaining -= Time.deltaTime;
 		if (calculationTimeRemaining < 0) {
 			calculationTimeRemaining = 0;
+			currentMission.SendMessage("ReadyToJump");
 		}
 	}
 }
