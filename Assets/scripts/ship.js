@@ -13,11 +13,12 @@ var computer : GameObject;
 var currentMission : GameObject;
 var components;
 var criticalComponents; // both are arrays of components. critical components must be intact to jump.
-var rooms; // all rooms in ship (
+var rooms; // all rooms in ship 
 
 function Start() {
 	components = new Array();
 	criticalComponents = new Array();
+	rooms = new Array();
 	currentMission = GameObject.FindGameObjectWithTag("Mission");
 }
 
