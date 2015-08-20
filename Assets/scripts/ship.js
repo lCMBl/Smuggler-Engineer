@@ -13,6 +13,7 @@ var computer : GameObject;
 var currentMission : GameObject;
 var components;
 var criticalComponents; // both are arrays of components. critical components must be intact to jump.
+var rooms; // all rooms in ship (
 
 function Start() {
 	components = new Array();
@@ -44,9 +45,17 @@ function HyperspaceJump () {
 	} 
 }
 
+function IncomingDamage() {
+	// performs calculations to see if ship dodges event (called from mission object)
+	Debug.Log("Damage Called, attempting to dodge");
+	for (var i=0; i < components.length; i++) {
+		Debug.Log("Components include: " + components[i]);
+	}
+}
+
 // pick room, then check children, and randomly select conduit for damage
 function TakeDamage() {
-
+	
 }
 
 function AddShipComponent(component : GameObject) {

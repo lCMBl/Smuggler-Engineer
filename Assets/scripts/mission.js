@@ -5,11 +5,15 @@ var missionTime : float = 0.0;
 var missionComplete : boolean = false;
 var readyToJump : boolean = false;
 var ship : GameObject;
+var minEventTime : float = 15; // sets a minimum amount of seconds between events
+var maxEventVariation : float = 10; // sets the range for seconds that could be added between events.
+var eventTimer : float = 0;
 private var shipScript;
 
 function Start() {
 	ship = GameObject.FindGameObjectWithTag("Ship");
 	shipScript = ship.GetComponent("ship");
+	eventTimer = Time.time + minEventTime;
 }
 
 function CompleteMission () {
@@ -23,6 +27,12 @@ function ReadyToJump () {
 function Update () {
 	if (!missionComplete) {
 		missionTime = Time.timeSinceLevelLoad;
+		// every frame, check to see if min even time has elapsed
+		if (eventTimer < Time.time) {
+			// attempt to damage the ship
+			ship.SendMessage("IncomingDamage");
+			eventTimer = Time.time + minEventTime + Random.Range(0.0, maxEventVariation);
+		}
 	}
 }
 
