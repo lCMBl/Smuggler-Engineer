@@ -1,7 +1,7 @@
 ﻿#pragma strict
 // allows an object to be damaged. Works with resource passing modules on the object if there are any.
-var health : int = 100;
-var maxHealth : int = 100;
+var health : float = 100;
+var maxHealth : float = 100;
 //var destroyOnZero : boolean = false; // set to true to have the object destroyed when it reaches 0 hp.
 var resourceScript : resourcePasser;
 function Start () {
@@ -9,20 +9,20 @@ function Start () {
 }
 
 
-function TakeDamage (amount : int) {
+function TakeDamage (amount : float) {
 	health -= amount;
 	CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
 }
 
-function SetHealth(amount : int) {
+function SetHealth(amount : float) {
 	health = amount;
 	
 	CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
 }
 
-function Repair (amount : int) {
+function Repair (amount : float) {
 	health += amount;
 	CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
@@ -34,7 +34,7 @@ function SetResourceRate () {
 	resourceScript.SetRate(ratePercentage);
 }
 
-function CheckBounds(param : int, min : int, max : int) {
+function CheckBounds(param : float, min : float, max : float) {
 	if (param < min) {
 		param = min;
 	} else if (health > max) {

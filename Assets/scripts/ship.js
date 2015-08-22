@@ -49,14 +49,24 @@ function HyperspaceJump () {
 function IncomingDamage() {
 	// performs calculations to see if ship dodges event (called from mission object)
 	Debug.Log("Damage Called, attempting to dodge");
-	for (var i=0; i < components.length; i++) {
-		Debug.Log("Components include: " + components[i]);
+	var hitRoll = Random.Range(0.0, 100.0);
+	if (hitRoll > evasionChance) {
+		// then the ship is hit, call take Damage
+		TakeDamage();
+	} else {
+		Debug.Log("Damage Avoided!");
 	}
 }
 
 // pick room, then check children, and randomly select conduit for damage
 function TakeDamage() {
-	
+	var damagedUnit : int = Random.Range(0, components.length - 1);
+	var damage : int = Random.Range(10, 100);
+	components[damagedUnit].SendMessage("TakeDamage", damage);
+	Debug.Log("component damaged: " + components[damagedUnit] + ", for " + damage + " damage.");
+//	for (var component : GameObject in components) {
+//		
+//	}
 }
 
 function AddShipComponent(component : GameObject) {

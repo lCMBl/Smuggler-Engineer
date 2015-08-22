@@ -49,6 +49,7 @@
      <Compile Include="Assets\scripts\button.js" />
      <Compile Include="Assets\scripts\damageableComponent.js" />
      <Compile Include="Assets\scripts\doorRoomChange.js" />
+     <Compile Include="Assets\scripts\fixOnClick.js" />
      <Compile Include="Assets\scripts\mission.js" />
      <Compile Include="Assets\scripts\resource.js" />
      <Compile Include="Assets\scripts\resourceConsumer.js" />
