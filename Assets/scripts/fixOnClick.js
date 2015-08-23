@@ -9,7 +9,7 @@ function Update () {
 			var damageComponent : damageableComponent = hit.transform.gameObject.GetComponent("damageableComponent");
 			if (damageComponent) {
 				damageComponent.Repair(rate * Time.deltaTime);
-				Debug.Log("Repairing: " + hit.transform.gameObject);
+//				Debug.Log("Repairing: " + hit.transform.gameObject);
 			}
 		}
 	}

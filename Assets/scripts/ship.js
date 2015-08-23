@@ -12,11 +12,13 @@ var engine : GameObject;
 var computer : GameObject; 
 var currentMission : GameObject;
 var components;
+var damageableComponents;
 var criticalComponents; // both are arrays of components. critical components must be intact to jump.
 var rooms; // all rooms in ship 
 
 function Start() {
 	components = new Array();
+	damageableComponents = new Array();
 	criticalComponents = new Array();
 	rooms = new Array();
 	currentMission = GameObject.FindGameObjectWithTag("Mission");
@@ -60,9 +62,9 @@ function IncomingDamage() {
 
 // pick room, then check children, and randomly select conduit for damage
 function TakeDamage() {
-	var damagedUnit : int = Random.Range(0, components.length - 1);
+	var damagedUnit : int = Random.Range(0, damageableComponents.length - 1);
 	var damage : int = Random.Range(10, 100);
-	components[damagedUnit].SendMessage("TakeDamage", damage);
+	damageableComponents[damagedUnit].SendMessage("TakeDamage", damage);
 	Debug.Log("component damaged: " + components[damagedUnit] + ", for " + damage + " damage.");
 //	for (var component : GameObject in components) {
 //		
@@ -73,13 +75,19 @@ function AddShipComponent(component : GameObject) {
 	components.Push(component);
 	// add special components to slots.
 	var type :ComponentType = component.GetComponent("shipComponent").componentType;
+	var damageable : damageableComponent = component.GetComponent("damageableComponent");
 	if (type == ComponentType.engine) {
 		engine = component;
 	} else if (type == ComponentType.computer) {
 		computer = component;
 	}
 	
-	Debug.Log("adding component: " + component);
+	if (damageable != null) {
+		damageableComponents.Push(component);
+		Debug.Log("added damageableComponent: " + component);
+	}
+	
+//	Debug.Log("adding component: " + component);
 }
 
 function AddShipCriticalComponent(component : GameObject) {
