@@ -11,20 +11,20 @@ function Start () {
 
 function TakeDamage (amount : float) {
 	health -= amount;
-	CheckBounds(health, 0, maxHealth);
+	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
 }
 
 function SetHealth(amount : float) {
 	health = amount;
 	
-	CheckBounds(health, 0, maxHealth);
+	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
 }
 
 function Repair (amount : float) {
 	health += amount;
-	CheckBounds(health, 0, maxHealth);
+	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
 }
 
@@ -40,4 +40,6 @@ function CheckBounds(param : float, min : float, max : float) {
 	} else if (health > max) {
 		param = max;
 	}
+	
+	return param;
 }
