@@ -13,6 +13,7 @@ function TakeDamage (amount : float) {
 	health -= amount;
 	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
+	SetColor();
 }
 
 function SetHealth(amount : float) {
@@ -20,18 +21,26 @@ function SetHealth(amount : float) {
 	
 	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
+	SetColor();
 }
 
 function Repair (amount : float) {
 	health += amount;
 	health = CheckBounds(health, 0, maxHealth);
 	SetResourceRate();
+	SetColor();
 }
 
 function SetResourceRate () {
 	// could also use sendmessage here
 	var ratePercentage = resourceScript.maxRate * (health / maxHealth);
 	resourceScript.SetRate(ratePercentage);
+}
+
+function SetColor () {
+	var healthPercentage = health / maxHealth;
+	gameObject.GetComponent.<Renderer>().material.SetColor("_Color", Color(1,healthPercentage,healthPercentage,1));
+	
 }
 
 function CheckBounds(param : float, min : float, max : float) {
