@@ -3,6 +3,7 @@
 
 
 var resourceType : ResourceType = ResourceType.electricity;
+var maxRate = 5.0;
 var rate = 5.0;
 var target : GameObject;
 var open : boolean = true;
@@ -14,5 +15,12 @@ function PassResource(amount : float) {
 		}
 		
 		target.SendMessage("PassResource", amount);
+	}
+}
+
+function SetRate (newRate : float) {
+	rate = newRate; 
+	if (rate > maxRate) {
+		rate = maxRate;
 	}
 }

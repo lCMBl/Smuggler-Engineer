@@ -8,6 +8,7 @@ var storage = 0.0;
 var maxStorage = 100.0;
 // TODO make it blow up if too much or not the right type of resource
 // TODO make it able to toggle between vulnerable to overstorage or not.
+// TODO make resource types actually DO something!
 
 var working : boolean = false;
 var timer : float = 0.0;
