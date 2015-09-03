@@ -62,7 +62,7 @@ function IncomingDamage() {
 
 // pick room, then check children, and randomly select conduit for damage
 function TakeDamage() {
-	var damagedUnit : int = Random.Range(0, damageableComponents.length - 1);
+	var damagedUnit : int = Random.Range(0, damageableComponents.length);
 	var damage : int = Random.Range(10, 100);
 	damageableComponents[damagedUnit].SendMessage("TakeDamage", damage);
 	Debug.Log("component damaged: " + damageableComponents[damagedUnit] + ", for " + damage + " damage.");

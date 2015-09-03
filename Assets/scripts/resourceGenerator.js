@@ -2,6 +2,7 @@
 
 
 var resourceType : ResourceType = ResourceType.electricity;
+var maxRate = 5.0;
 var rate = 5.0;
 var target : GameObject;
 var on : boolean = true;
@@ -14,3 +15,9 @@ function Update() {
 	}
 }
 
+function SetRate (newRate : float) {
+	rate = newRate; 
+	if (rate > maxRate) {
+		rate = maxRate;
+	}
+}

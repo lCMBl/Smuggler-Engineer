@@ -4,8 +4,10 @@ var health : float = 100;
 var maxHealth : float = 100;
 //var destroyOnZero : boolean = false; // set to true to have the object destroyed when it reaches 0 hp.
 var resourceScript : resourcePasser;
+var generatorScript : resourceGenerator;
 function Start () {
 	resourceScript = gameObject.GetComponent("resourcePasser");
+	generatorScript = gameObject.GetComponent("resourceGenerator");
 }
 
 
@@ -33,8 +35,15 @@ function Repair (amount : float) {
 
 function SetResourceRate () {
 	// could also use sendmessage here
-	var ratePercentage = resourceScript.maxRate * (health / maxHealth);
-	resourceScript.SetRate(ratePercentage);
+	if (resourceScript != null) {
+		var ratePercentage = resourceScript.maxRate * (health / maxHealth);
+		resourceScript.SetRate(ratePercentage);
+	}
+	
+	if (generatorScript != null) {
+		var generatorPercentage = generatorScript.maxRate * (health / maxHealth);
+		generatorScript.SetRate(generatorPercentage);
+	}
 }
 
 function SetColor () {

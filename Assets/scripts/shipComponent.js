@@ -30,8 +30,8 @@ function Update () {
 
 function ChangeMade( working : boolean) {
 	debugCounter++;
-	Debug.Log("Change has been made in Resource consumer working status. This method has been called " + debugCounter + " times.");
-	Debug.Log("The component has working status: " + working);
+//	Debug.Log("Change has been made in Resource consumer working status. This method has been called " + debugCounter + " times.");
+//	Debug.Log("The component has working status: " + working);
 	isWorking = working;
 	if (evasionContribution > 0) {
 		if (working) {
