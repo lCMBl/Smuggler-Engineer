@@ -46,7 +46,7 @@ function SetColor () {
 function CheckBounds(param : float, min : float, max : float) {
 	if (param < min) {
 		param = min;
-	} else if (health > max) {
+	} else if (param > max) {
 		param = max;
 	}
 	

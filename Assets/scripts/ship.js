@@ -94,3 +94,23 @@ function AddShipCriticalComponent(component : GameObject) {
 	AddShipComponent(component);
 	criticalComponents.Push(component);
 }
+
+function AddEvasion(ammount : int) {
+	evasionChance += ammount;
+	evasionChance = CheckBounds(evasionChance, 0, 100);
+}
+
+function RemoveEvasion(ammount : int) {
+	evasionChance -= ammount;
+	evasionChance = CheckBounds(evasionChance, 0, 100);
+}
+
+function CheckBounds(param : int, min : int, max : int) {
+	if (param < min) {
+		param = min;
+	} else if (param > max) {
+		param = max;
+	}
+	
+	return param;
+}

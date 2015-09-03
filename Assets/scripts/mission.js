@@ -42,11 +42,12 @@ function OnGUI() {
 	GUILayout.Label ("Mission Time: " + missionTime);
 	GUILayout.Label ("Time remaining to calculate Hyperspace Jump: " + shipScript.calculationTimeRemaining);
 	
+	GUILayout.Label ("Chance to avoid incoming damage: " + shipScript.evasionChance);
 	
 	GUILayout.Label ("critical systems status: ");
 	
 	for(var system : GameObject in shipScript.criticalComponents) {
-		Debug.Log("System: " + system);
+//		Debug.Log("System: " + system);
 		var status = "";
 		if (system.GetComponent("resourceConsumer") && system.GetComponent("resourceConsumer").working) { // have all resource indicators register with the ship, so that there is one place where "active" is being tracked.
 			status = "OK";
