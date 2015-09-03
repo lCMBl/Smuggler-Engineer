@@ -38,8 +38,24 @@ function Update () {
 
 function OnGUI() {
 	GUILayout.BeginArea (Rect (10,10,400,400));
+	GUI.Box (Rect (0,0,400,400), "");
 	GUILayout.Label ("Mission Time: " + missionTime);
 	GUILayout.Label ("Time remaining to calculate Hyperspace Jump: " + shipScript.calculationTimeRemaining);
+	
+	
+	GUILayout.Label ("critical systems status: ");
+	
+	for(var system : GameObject in shipScript.criticalComponents) {
+		Debug.Log("System: " + system);
+		var status = "";
+		if (system.GetComponent("resourceConsumer") && system.GetComponent("resourceConsumer").working) { // have all resource indicators register with the ship, so that there is one place where "active" is being tracked.
+			status = "OK";
+		} else {
+			status = "Offline";
+		}
+		GUILayout.Label (system.name + ": " + status);
+	}
+	
 	if (readyToJump) {
 		GUILayout.Label ("Ready to Jump to Hyperspace!");
 	}

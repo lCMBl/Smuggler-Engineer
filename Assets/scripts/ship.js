@@ -65,7 +65,7 @@ function TakeDamage() {
 	var damagedUnit : int = Random.Range(0, damageableComponents.length - 1);
 	var damage : int = Random.Range(10, 100);
 	damageableComponents[damagedUnit].SendMessage("TakeDamage", damage);
-	Debug.Log("component damaged: " + components[damagedUnit] + ", for " + damage + " damage.");
+	Debug.Log("component damaged: " + damageableComponents[damagedUnit] + ", for " + damage + " damage.");
 //	for (var component : GameObject in components) {
 //		
 //	}
