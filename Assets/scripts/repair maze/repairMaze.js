@@ -25,7 +25,7 @@ var path : Vector2[] = new Vector2[mazeSteps];
 function Start () {
 	player = GameObject.FindGameObjectWithTag("Player");
 	repairPointer = GameObject.FindGameObjectWithTag("RepairCursor");
-	
+	repairPointer.SetActive(false);
 	
 	
 }
@@ -49,16 +49,18 @@ function StartMaze(target : GameObject) {
 
 function PlacePointer() {
 	repairPointer.transform.position = startingTile.transform.position;
+	repairPointer.transform.rotation = startingTile.transform.rotation;
 }
 
 function ResetMaze () {
+	PlacePointer();
 	
 	//  clear path, place the pointer, reset path counter
 	for (var wall in GameObject.FindGameObjectsWithTag("MazePath")) {
 		wall.GetComponent(MeshRenderer).enabled = false;
 	}
 	
-	PlacePointer();
+	
 	pathCounter = maxPathCount;
 	
 }
@@ -93,6 +95,8 @@ function ExitMaze() {
 function CompleteMaze() {
 	
 	// exit maze, and repair piece
+	ExitMaze();
+	targetComponent.SendMessage("FullRepair");
 	
 }
 

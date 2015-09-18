@@ -1,14 +1,7 @@
 ﻿#pragma strict
 
-function Start () {
-
-}
-
-function Update () {
-
-}
-
 function OnTriggerEnter(other : Collider) {
+	Debug.Log("Object entered: " + other.gameObject);
 	if (gameObject.GetComponent(MeshRenderer).enabled == true) {
 		if (other.gameObject.tag == "RepairCursor") {
 			Debug.Log("Repair cursor hit box: " + gameObject);
