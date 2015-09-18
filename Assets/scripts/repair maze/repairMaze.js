@@ -6,7 +6,7 @@
 var player : GameObject;
 var wallPrefab : GameObject;
 var repairPointer : GameObject;
-var mazeGeneratorPrefab : GameObject; // MUST be pre-set with maze parameters
+var targetComponent : GameObject; // set when clicked
 
 var mazeSteps : int = 20;
 var edgeSize : int = 2;
@@ -16,13 +16,8 @@ var zOffset : float = 5;
 
 var startingTile : GameObject;
 
-//var leftMost : Vector2 = Vector2.zero;
-//var rightMost : Vector2 = Vector2.zero;
-//var topMost : Vector2 = Vector2.zero;
-//var bottomMost : Vector2 = Vector2.zero;
-
-var width : int;
-var height : int;
+var pathCounter : int = 0;
+var maxPathCount : int = 0;
 
 var currentPosition : Vector2 = Vector2.zero;
 var path : Vector2[] = new Vector2[mazeSteps];
@@ -31,6 +26,11 @@ function Start () {
 	player = GameObject.FindGameObjectWithTag("Player");
 	repairPointer = GameObject.FindGameObjectWithTag("RepairCursor");
 	
+	
+	
+}
+
+function StartMaze(target : GameObject) {
 	// unlock cursor
 	Screen.lockCursor = false;
 	
@@ -40,11 +40,11 @@ function Start () {
 	// generate maze
 	GenerateMaze(mazeSteps);
 	
-	PlacePointer();
-//	// place maze in center of screen
-//	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
-//	transform.localPosition += GetScreenPositionOffset();
+	repairPointer.SetActive(true);
 	
+	PlacePointer();
+	
+	targetComponent = target;
 }
 
 function PlacePointer() {
@@ -52,18 +52,47 @@ function PlacePointer() {
 }
 
 function ResetMaze () {
-//	var newMaze : GameObject = Instantiate(mazeGeneratorPrefab, transform.position, transform.rotation);
-//	newMaze.transform.parent = transform.parent;
-//// destroy all children? and just hide the maze generator / cursor?
-//	Destroy(gameObject);
-	PlacePointer();
 	
-	//  clear path, place the pointer
+	//  clear path, place the pointer, reset path counter
 	for (var wall in GameObject.FindGameObjectsWithTag("MazePath")) {
 		wall.GetComponent(MeshRenderer).enabled = false;
 	}
 	
+	PlacePointer();
+	pathCounter = maxPathCount;
 	
+}
+
+function ReduceCounter() {
+	pathCounter--;
+}
+
+function CheckMazeCompletion () {	
+	if (pathCounter <= 1) {
+		Debug.Log("Maze Complete!");
+		CompleteMaze();
+	}
+}
+
+function ExitMaze() {
+	// lock cursor
+	Screen.lockCursor = true;
+	
+	// unfreeze rotation
+	player.GetComponent("FirstPersonController").enabled = true;
+	
+	// destroy all walls
+	for (var wall in transform) {
+		Destroy(wall.gameObject);
+	}
+	
+	// disable repaircursor
+	repairPointer.SetActive(false);
+}
+
+function CompleteMaze() {
+	
+	// exit maze, and repair piece
 	
 }
 
@@ -77,9 +106,6 @@ function GenerateMaze ( steps : int) {
 	
 	// after creation of the path, create the visual representation of it.
 	// for maze to be complete, all path squares must be filled.
-//	width = Vector2.Distance(leftMost, rightMost) + edgeSize;
-//	height = Vector2.Distance(bottomMost, topMost) + edgeSize;
-//	Debug.Log("Making maze of width: " + width + " and height: " + height);
 	
 	for (var i : int = -1; i < mazeSize + (edgeSize/2); i++) {
 		for (var j : int = -1; j < mazeSize + (edgeSize/2); j++) {
@@ -91,6 +117,8 @@ function GenerateMaze ( steps : int) {
 			if (ArrayUtility.Contains(path, Vector2(i,j))) {
 				newWall.GetComponent(MeshRenderer).enabled = false;
 				newWall.tag = "MazePath";
+				pathCounter++;
+				maxPathCount++;
 				if (startingTile == null && path[0] == Vector2(i,j)) {
 					startingTile = newWall;
 				}
@@ -103,13 +131,6 @@ function GenerateMaze ( steps : int) {
 	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
 	transform.localPosition += GetScreenPositionOffset();
 }
-
-//function CheckRelativePosition (position : Vector2) {
-//	if (position.x < leftMost.x) {leftMost = position;}
-//	if (position.y < bottomMost.y) {bottomMost = position;}
-//	if (position.x > rightMost.x) {rightMost = position;}
-//	if (position.y > topMost.y) {topMost = position;}
-//}
 
 function PositionInBounds(position : Vector2) {
 	if (position.x < 0) {return false;}

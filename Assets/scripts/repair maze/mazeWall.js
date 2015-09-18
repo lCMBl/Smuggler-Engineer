@@ -26,6 +26,8 @@ function OnTriggerExit(other : Collider) {
 		if (other.gameObject.tag == "RepairCursor") {
 			Debug.Log("Tile Complete!");
 			// send message to check maze completion
+			transform.parent.SendMessage("ReduceCounter");
+			transform.parent.SendMessage("CheckMazeCompletion");
 			gameObject.GetComponent(MeshRenderer).enabled = true;
 			
 		} 
