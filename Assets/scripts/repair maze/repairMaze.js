@@ -6,6 +6,7 @@
 var player : GameObject;
 var wallPrefab : GameObject;
 var repairPointer : GameObject;
+var mazeGeneratorPrefab : GameObject; // MUST be pre-set with maze parameters
 
 var mazeSteps : int = 20;
 var edgeSize : int = 2;
@@ -13,10 +14,12 @@ var mazeSize : int = 10;
 var mazeScale : float = 0.5;
 var zOffset : float = 5;
 
-var leftMost : Vector2 = Vector2.zero;
-var rightMost : Vector2 = Vector2.zero;
-var topMost : Vector2 = Vector2.zero;
-var bottomMost : Vector2 = Vector2.zero;
+var startingTile : GameObject;
+
+//var leftMost : Vector2 = Vector2.zero;
+//var rightMost : Vector2 = Vector2.zero;
+//var topMost : Vector2 = Vector2.zero;
+//var bottomMost : Vector2 = Vector2.zero;
 
 var width : int;
 var height : int;
@@ -26,6 +29,7 @@ var path : Vector2[] = new Vector2[mazeSteps];
 
 function Start () {
 	player = GameObject.FindGameObjectWithTag("Player");
+	repairPointer = GameObject.FindGameObjectWithTag("RepairCursor");
 	
 	// unlock cursor
 	Screen.lockCursor = false;
@@ -36,9 +40,30 @@ function Start () {
 	// generate maze
 	GenerateMaze(mazeSteps);
 	
-	// place maze in center of screen
-	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
-	transform.localPosition += GetScreenPositionOffset();
+	PlacePointer();
+//	// place maze in center of screen
+//	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
+//	transform.localPosition += GetScreenPositionOffset();
+	
+}
+
+function PlacePointer() {
+	repairPointer.transform.position = startingTile.transform.position;
+}
+
+function ResetMaze () {
+//	var newMaze : GameObject = Instantiate(mazeGeneratorPrefab, transform.position, transform.rotation);
+//	newMaze.transform.parent = transform.parent;
+//// destroy all children? and just hide the maze generator / cursor?
+//	Destroy(gameObject);
+	PlacePointer();
+	
+	//  clear path, place the pointer
+	for (var wall in GameObject.FindGameObjectsWithTag("MazePath")) {
+		wall.GetComponent(MeshRenderer).enabled = false;
+	}
+	
+	
 	
 }
 
@@ -52,22 +77,9 @@ function GenerateMaze ( steps : int) {
 	
 	// after creation of the path, create the visual representation of it.
 	// for maze to be complete, all path squares must be filled.
-	width = Vector2.Distance(leftMost, rightMost) + edgeSize;
-	height = Vector2.Distance(bottomMost, topMost) + edgeSize;
-	Debug.Log("Making maze of width: " + width + " and height: " + height);
-	
-//	for (var i : int = leftMost.x - (edgeSize/2); i < width + leftMost.x; i++) {
-//		for (var j : int = bottomMost.y - (edgeSize/2); j < height + bottomMost.y; j++) {
-//			var newWall : GameObject = Instantiate(wallPrefab, Vector3.zero, transform.rotation);
-//			newWall.transform.parent = transform;
-//			newWall.transform.localPosition = Vector3(i,j,zOffset);
-//			
-//			if (ArrayUtility.Contains(path, Vector2(i,j))) {
-//				newWall.GetComponent(MeshRenderer).enabled = false;
-//			}
-//			
-//		}
-//	}
+//	width = Vector2.Distance(leftMost, rightMost) + edgeSize;
+//	height = Vector2.Distance(bottomMost, topMost) + edgeSize;
+//	Debug.Log("Making maze of width: " + width + " and height: " + height);
 	
 	for (var i : int = -1; i < mazeSize + (edgeSize/2); i++) {
 		for (var j : int = -1; j < mazeSize + (edgeSize/2); j++) {
@@ -78,18 +90,26 @@ function GenerateMaze ( steps : int) {
 			
 			if (ArrayUtility.Contains(path, Vector2(i,j))) {
 				newWall.GetComponent(MeshRenderer).enabled = false;
+				newWall.tag = "MazePath";
+				if (startingTile == null && path[0] == Vector2(i,j)) {
+					startingTile = newWall;
+				}
 			}
 			
 		}
 	}
+	
+	// place maze in center of screen
+	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
+	transform.localPosition += GetScreenPositionOffset();
 }
 
-function CheckRelativePosition (position : Vector2) {
-	if (position.x < leftMost.x) {leftMost = position;}
-	if (position.y < bottomMost.y) {bottomMost = position;}
-	if (position.x > rightMost.x) {rightMost = position;}
-	if (position.y > topMost.y) {topMost = position;}
-}
+//function CheckRelativePosition (position : Vector2) {
+//	if (position.x < leftMost.x) {leftMost = position;}
+//	if (position.y < bottomMost.y) {bottomMost = position;}
+//	if (position.x > rightMost.x) {rightMost = position;}
+//	if (position.y > topMost.y) {topMost = position;}
+//}
 
 function PositionInBounds(position : Vector2) {
 	if (position.x < 0) {return false;}
@@ -134,7 +154,7 @@ function TakeStep (step : int, counter : int) : boolean {
 	}
 	
 	if (!ArrayUtility.Contains(path, nextPosition) && PositionInBounds(nextPosition)) {
-		CheckRelativePosition(nextPosition);
+//		CheckRelativePosition(nextPosition);
 		path[step] = nextPosition;
 		currentPosition = nextPosition;
 		
