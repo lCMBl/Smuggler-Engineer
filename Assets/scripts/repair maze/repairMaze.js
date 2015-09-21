@@ -22,6 +22,8 @@ var maxPathCount : int = 0;
 var currentPosition : Vector2 = Vector2.zero;
 var path : Vector2[] = new Vector2[mazeSteps];
 
+private var firstRun : boolean = true; // bad hack to get the maze position to run only once
+
 function Start () {
 	player = GameObject.FindGameObjectWithTag("Player");
 	repairPointer = GameObject.FindGameObjectWithTag("RepairCursor");
@@ -39,6 +41,13 @@ function StartMaze(target : GameObject) {
 	
 	// generate maze
 	GenerateMaze(mazeSteps);
+	
+	if (firstRun) {
+		// place maze in center of screen
+		transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
+		transform.localPosition += GetScreenPositionOffset();
+		firstRun = false;
+	}
 	
 	repairPointer.SetActive(true);
 	
@@ -63,6 +72,17 @@ function ResetMaze () {
 	
 	pathCounter = maxPathCount;
 	
+}
+
+function ClearData() {
+	targetComponent = null;
+	startingTile = null;
+
+	pathCounter = 0;
+	maxPathCount = 0;
+
+	currentPosition = Vector2.zero;
+	path = new Vector2[mazeSteps];
 }
 
 function ReduceCounter() {
@@ -90,13 +110,17 @@ function ExitMaze() {
 	
 	// disable repaircursor
 	repairPointer.SetActive(false);
+	
+	// clear maze data
+	ClearData();
 }
 
 function CompleteMaze() {
 	
 	// exit maze, and repair piece
-	ExitMaze();
 	targetComponent.SendMessage("FullRepair");
+	ExitMaze();
+	
 	
 }
 
@@ -117,6 +141,7 @@ function GenerateMaze ( steps : int) {
 			newWall.transform.parent = transform;
 			newWall.transform.localPosition = Vector3(i,j,zOffset);
 			newWall.layer = 5;
+			newWall.transform.localScale = Vector3.one; // need to do because maze has scale 1 first time through, and 0.5 etc. scale every other time
 			
 			if (ArrayUtility.Contains(path, Vector2(i,j))) {
 				newWall.GetComponent(MeshRenderer).enabled = false;
@@ -131,9 +156,7 @@ function GenerateMaze ( steps : int) {
 		}
 	}
 	
-	// place maze in center of screen
-	transform.localScale = Vector3(mazeScale, mazeScale, 0.1);//GetScale();
-	transform.localPosition += GetScreenPositionOffset();
+	
 }
 
 function PositionInBounds(position : Vector2) {
