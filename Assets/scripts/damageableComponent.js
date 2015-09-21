@@ -33,6 +33,12 @@ function Repair (amount : float) {
 	SetColor();
 }
 
+function FullRepair() {
+	health = maxHealth;
+	SetResourceRate();
+	SetColor();
+}
+
 function SetResourceRate () {
 	// could also use sendmessage here
 	if (resourceScript != null) {
