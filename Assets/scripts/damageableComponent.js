@@ -54,8 +54,14 @@ function SetResourceRate () {
 
 function SetColor () {
 	var healthPercentage = health / maxHealth;
-	gameObject.GetComponent.<Renderer>().material.SetColor("_Color", Color(1,healthPercentage,healthPercentage,1));
-	
+	if (gameObject.GetComponent(Renderer) == null) {
+		// then game object is an empty parent, and the color of all of the children needs to be set.
+		for (var child : Transform in transform) {
+			child.GetComponent(Renderer).material.SetColor("_Color", Color(1, healthPercentage, healthPercentage, 1));
+		}
+	} else {
+		gameObject.GetComponent.<Renderer>().material.SetColor("_Color", Color(1,healthPercentage,healthPercentage,1));
+	}
 }
 
 function CheckBounds(param : float, min : float, max : float) {
