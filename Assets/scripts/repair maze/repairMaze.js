@@ -29,6 +29,8 @@ function Start () {
 	repairPointer = GameObject.FindGameObjectWithTag("RepairCursor");
 	repairPointer.SetActive(false);
 	
+//	StartMaze(player);
+	
 	
 }
 
@@ -119,6 +121,7 @@ function CompleteMaze() {
 	
 	// exit maze, and repair piece
 	targetComponent.SendMessage("FullRepair");
+	 Debug.Log("Completed the maze!");
 	ExitMaze();
 	
 	
@@ -143,7 +146,7 @@ function GenerateMaze ( steps : int) {
 			newWall.layer = 5;
 			newWall.transform.localScale = Vector3.one; // need to do because maze has scale 1 first time through, and 0.5 etc. scale every other time
 			
-			if (ArrayUtility.Contains(path, Vector2(i,j))) {
+			if (ArrayContains(path, Vector2(i,j))) {
 				newWall.GetComponent(MeshRenderer).enabled = false;
 				newWall.tag = "MazePath";
 				pathCounter++;
@@ -201,7 +204,7 @@ function TakeStep (step : int, counter : int) : boolean {
 		return false;
 	}
 	
-	if (!ArrayUtility.Contains(path, nextPosition) && PositionInBounds(nextPosition)) {
+	if (!ArrayContains(path, nextPosition) && PositionInBounds(nextPosition)) {
 //		CheckRelativePosition(nextPosition);
 		path[step] = nextPosition;
 		currentPosition = nextPosition;
@@ -226,4 +229,13 @@ function GetScreenPositionOffset() {
 	var xOffset : float = ((mazeSize + 1) / 2) - edgeSize;
 	var yOffset : float = ((mazeSize + 1) / 2) - (edgeSize/2);
 	return Vector3(-xOffset * transform.localScale.x, -yOffset  * transform.localScale.y, 0);
+}
+
+function ArrayContains(array, object) : boolean {
+	for (var currentObject in array) {
+		if (currentObject == object) {
+			return true;
+		}
+	}
+	return false;
 }
