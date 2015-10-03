@@ -4,6 +4,7 @@
 // place them in the same position they were relative to the original room, and fade in.
 
 var destinationRoom : GameObject;
+var currentRoom : GameObject;
 
 function Start () {
 	// prevent the script from activating if no destination room exists
@@ -26,7 +27,7 @@ function OnMouseOver() {
 
 function ChangeRoom(player : GameObject, destination : GameObject) {
 	
-	var relativePosition = RelativePosition(transform.parent.gameObject, player);
+	var relativePosition = RelativePosition(currentRoom, player);
 	
 	Debug.Log("relative position is: " + relativePosition);
 //	destination.SetActive(true);
