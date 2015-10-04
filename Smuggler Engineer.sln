@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{47D9427D-1B93-4E17-638D-2993CA94BE3E}") = "Smuggler Engineer", "Assembly-CSharp-firstpass.csproj", "{78BE0DE2-7C94-9FE9-0254-1DCAC0585679}"
 EndProject
+Project("{47D9427D-1B93-4E17-638D-2993CA94BE3E}") = "Smuggler Engineer", "Assembly-CSharp.csproj", "{EFFBBDE4-F24A-534B-1D49-ADB58FF8855D}"
+EndProject
 Project("{47D9427D-1B93-4E17-638D-2993CA94BE3E}") = "Smuggler Engineer", "Assembly-CSharp-Editor.csproj", "{24C35007-62EB-ACCE-5A67-D3980A2B7AFA}"
 EndProject
 Project("{47D9427D-1B93-4E17-638D-2993CA94BE3E}") = "Smuggler Engineer", "Assembly-UnityScript.unityproj", "{A9B6AD81-DDF0-2F9F-1952-A563B303F25B}"
@@ -17,6 +19,10 @@ Global
 		{78BE0DE2-7C94-9FE9-0254-1DCAC0585679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78BE0DE2-7C94-9FE9-0254-1DCAC0585679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78BE0DE2-7C94-9FE9-0254-1DCAC0585679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFFBBDE4-F24A-534B-1D49-ADB58FF8855D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFFBBDE4-F24A-534B-1D49-ADB58FF8855D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFFBBDE4-F24A-534B-1D49-ADB58FF8855D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFFBBDE4-F24A-534B-1D49-ADB58FF8855D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{24C35007-62EB-ACCE-5A67-D3980A2B7AFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{24C35007-62EB-ACCE-5A67-D3980A2B7AFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24C35007-62EB-ACCE-5A67-D3980A2B7AFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,7 +35,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																					GlobalSection(MonoDevelopProperties) = preSolution
+																																																											GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
