@@ -56,6 +56,7 @@ public class ResourceComponent : MonoBehaviour {
 	public float maxOutputStorage = 0.0f;
 
 	public float resourceInputRate = 0.0f;
+	public float resourceInputThisTick = 0.0f; // used to make sure that multiple sources don't go above input rate
 	public float resourceConversionRate = 0.0f; // how fast input resources are turned into output resources. (still used when there are no input resources)
 
 	public float resourceOutputRate = 0.0f;
@@ -122,18 +123,34 @@ public class ResourceComponent : MonoBehaviour {
 	}
 
 	void GenerateResource() {
-		AddOutputResource (resourceConversionRate);
+		AddOutputResource (resourceConversionRate * outputModifier);
 	}
 	
 
-	void SendResource(float amount, ResourceComponent target) {
+	float SendResource(float amount, ResourceComponent target) {
+
 		if (target.inputResourceType == outputResourceType) {
-			RemoveOutputResource (amount);
-			target.AddInputResource (amount);
+			if (target.resourceInputThisTick < target.resourceInputRate) {
+				float remainingInput = target.resourceInputRate - target.resourceInputThisTick; 
+				if(remainingInput < amount) {
+					float overflow = amount - remainingInput;
+					RemoveOutputResource (remainingInput);
+					target.AddInputResource (remainingInput);
+					target.resourceInputThisTick += remainingInput;
+					return overflow;
+				} else {
+					RemoveOutputResource (amount);
+					target.AddInputResource (amount);
+					target.resourceInputThisTick += amount;
+				}
+
+			} else {
+				Debug.Log (target.gameObject + "has recieved their full alotment of resources already this tick. cannot push any more");
+			}
 		} else {
 			Debug.Log (gameObject + " Send Resource Failed. Target input resource: " + target.inputResourceType + " does not equal own output resource: " + outputResourceType);
 		}
-
+		return 0.0f;
 
 	}
 
@@ -173,7 +190,7 @@ public class ResourceComponent : MonoBehaviour {
 					toSend = Mathf.Min (Mathf.Abs (outputNeedsThisTick[i]), outputsThisTick[i].resourceInputRate);
 					
 					// call send resources function, passing toSend
-					SendResource(toSend, outputsThisTick[i]);
+					resourceOverflow += SendResource(toSend, outputsThisTick[i]);
 					
 					outputsThisTick.RemoveAt(i);
 					outputNeedsThisTick.RemoveAt(i);
@@ -186,9 +203,9 @@ public class ResourceComponent : MonoBehaviour {
 					toSend = Mathf.Min(outputPortion, outputsThisTick[i].resourceInputRate);
 					
 					// call send resources function, passing toSend
-					SendResource(toSend, outputsThisTick[i]);
+					resourceOverflow += SendResource(toSend, outputsThisTick[i]);
 					
-					// pass remainder to overflow
+					// pass remainder to overflow //TODO redundant?
 					resourceOverflow += ( outputPortion - toSend);
 					
 					// remove output from this tick list or modify the need to reflect input rate cap.
@@ -228,6 +245,8 @@ public class ResourceComponent : MonoBehaviour {
 			// set timer
 			if (stepTimer < Time.time) {
 				stepTimer = Time.time + 1.0f / ticksPerSecond;
+				// reset resource this tick
+				resourceInputThisTick = 0.0f;
 				// perform step operations here
 				if (isWorking) {
 					if (inputResourceType == ResourceType.none) {
