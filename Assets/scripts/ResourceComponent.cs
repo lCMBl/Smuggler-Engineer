@@ -42,6 +42,9 @@ public class ResourceComponent : MonoBehaviour {
 	public ResourceType inputResourceType;
 	public ResourceType outputResourceType;
 
+	public bool isWorking = true;// is the generator converting resources internally? (generating, consuming, or converting)
+	public bool isPassing = true; // is the generator passing resources on?
+
 	public float ticksPerSecond = 1.0f; // how often the resource should send their output amount per second.
 	public float efficiencyPercent = 100.0f; // if there is any input lost before being used (either passed or consumed) 
 	public float outputModifier = 1.0f; 
@@ -53,7 +56,7 @@ public class ResourceComponent : MonoBehaviour {
 	public float maxOutputStorage = 0.0f;
 
 	public float resourceInputRate = 0.0f;
-	public float resourceConversionRate = 0.0f; // how fast input resources are turned into output resources.
+	public float resourceConversionRate = 0.0f; // how fast input resources are turned into output resources. (still used when there are no input resources)
 
 	public float resourceOutputRate = 0.0f;
 	public float maxResourceOutputRate = 0.0f; // this can function as a throttle, letting resources pile up in the input tank and restricting output.
@@ -101,18 +104,27 @@ public class ResourceComponent : MonoBehaviour {
 		// amount is determined by stepped / streamed / conversionRate / outputModifier
 		// takes resources from input, and puts them into the output tank, minus those lost to efficiency
 		float outputAmount = amount * (efficiencyPercent / 100.0f) * outputModifier;
-		if (storedOutputResource + outputAmount <= maxOutputStorage) {
+		if (storedOutputResource + outputAmount <= maxOutputStorage && storedInputResource - amount >= 0) {
 			RemoveInputResource (amount);
 			AddOutputResource (outputAmount);
+		} else if (storedOutputResource + outputAmount > maxOutputStorage) {
+			Debug.Log ("Output storage for " + gameObject + " is full, cannot convert.");
 		} else {
-			Debug.Log ("Output storage for "+ gameObject + " is full, cannot convert.");
+			Debug.Log ("Input storage for " + gameObject + " is too low, cannot convert.");
 		}
 
 	}
 
 	void ConsumeResource() {
 		// consumes resources from the output pool, using the outputrate 
+		// instantiate as a "virtual" function, to be over-ridden by a specific consumption class (i.e. a computer)?
+		// needs to make sure that there is enough input resource to execute (call convert resources, then do custom code) -- done in control loop
 	}
+
+	void GenerateResource() {
+		AddOutputResource (resourceConversionRate);
+	}
+	
 
 	void SendResource(float amount, ResourceComponent target) {
 		if (target.inputResourceType == outputResourceType) {
@@ -124,6 +136,80 @@ public class ResourceComponent : MonoBehaviour {
 
 
 	}
+
+	// responsible for passing out resources to all output targets
+	void PassResources() {
+
+		
+		// turn the following into a dedicated function for use with the streamed production mode
+		List<ResourceComponent> outputsThisTick = new List<ResourceComponent>();
+		List<float> outputNeedsThisTick = new List<float>();
+		
+		foreach(ResourceComponent output in targetOutputs) {
+			outputsThisTick.Add(output);
+			outputNeedsThisTick.Add(output.storedInputResource - output.maxInputStorage);
+		}
+		
+		float resourceOverflow = 0.0f;
+		// TODO possibly use getter method with output rate to calculate both streamed / stepped value
+		float outputPortion = Mathf.Min(resourceOutputRate, storedOutputResource) / outputsThisTick.Count;
+		
+		
+		do {
+			//					Debug.Log ("Number of outputs: " + outputsThisTick.Count);
+			//					Debug.Log ("outputs this tick: " + outputsThisTick[0]);
+			//					Debug.Log ("output Needs this tick: " + outputNeedsThisTick[0]);
+			
+			//					Debug.Log ("Continue loop? " + (outputsThisTick.Count != 0 && resourceOverflow !=0));
+			
+			resourceOverflow = 0.0f;
+			
+			for(int i = outputsThisTick.Count - 1; i >= 0 ; i--) {
+				// replace script component with null instead of removing outright, then clear after the foreach loop.
+				float newStoredAmount = outputPortion + outputNeedsThisTick[i];
+				float toSend = 0.0f;
+				
+				if (newStoredAmount > 0.0f) { // then there is excess, and remainder should be added to overflow
+					toSend = Mathf.Min (Mathf.Abs (outputNeedsThisTick[i]), outputsThisTick[i].resourceInputRate);
+					
+					// call send resources function, passing toSend
+					SendResource(toSend, outputsThisTick[i]);
+					
+					outputsThisTick.RemoveAt(i);
+					outputNeedsThisTick.RemoveAt(i);
+					
+					// pass remainder to overflow
+					resourceOverflow += newStoredAmount;
+					
+				} else {
+					
+					toSend = Mathf.Min(outputPortion, outputsThisTick[i].resourceInputRate);
+					
+					// call send resources function, passing toSend
+					SendResource(toSend, outputsThisTick[i]);
+					
+					// pass remainder to overflow
+					resourceOverflow += ( outputPortion - toSend);
+					
+					// remove output from this tick list or modify the need to reflect input rate cap.
+					if (outputsThisTick[i].resourceInputRate <= outputPortion) {
+						outputsThisTick.RemoveAt(i);
+						outputNeedsThisTick.RemoveAt(i);
+					} else {
+						outputNeedsThisTick[i] = outputPortion - outputsThisTick[i].resourceInputRate;
+					}
+				}
+				
+			}// end of for loop
+			
+			
+			// calculate the available portion to go around
+			outputPortion = resourceOverflow / outputsThisTick.Count;
+			
+		} while(outputsThisTick.Count != 0 && resourceOverflow !=0);
+		//				Debug.Log ("exited while loop");
+	}
+
 
 	void AddOutput(GameObject other) {
 
@@ -143,76 +229,26 @@ public class ResourceComponent : MonoBehaviour {
 			if (stepTimer < Time.time) {
 				stepTimer = Time.time + 1.0f / ticksPerSecond;
 				// perform step operations here
-
-				ConvertResource(resourceConversionRate);
-
-				// turn the following into a dedicated function for use with the streamed production mode
-				List<ResourceComponent> outputsThisTick = new List<ResourceComponent>();
-				List<float> outputNeedsThisTick = new List<float>();
-
-				foreach(ResourceComponent output in targetOutputs) {
-					outputsThisTick.Add(output);
-					outputNeedsThisTick.Add(output.storedInputResource - output.maxInputStorage);
+				if (isWorking) {
+					if (inputResourceType == ResourceType.none) {
+						GenerateResource();
+					} else { // even if input and output resources are the same, it's still the same convertion process that happens
+						ConvertResource(resourceConversionRate);
+						if(outputResourceType == ResourceType.none) {
+							ConsumeResource();
+						}
+					}
 				}
 
-				float resourceOverflow = 0.0f;
-				// TODO possibly use getter method with output rate to calculate both streamed / stepped value
-				float outputPortion = Mathf.Min(resourceOutputRate, storedOutputResource) / outputsThisTick.Count;
+				if (isPassing) {
+					PassResources();
+				}
 
 
-				do {
-//					Debug.Log ("Number of outputs: " + outputsThisTick.Count);
-//					Debug.Log ("outputs this tick: " + outputsThisTick[0]);
-//					Debug.Log ("output Needs this tick: " + outputNeedsThisTick[0]);
-
-//					Debug.Log ("Continue loop? " + (outputsThisTick.Count != 0 && resourceOverflow !=0));
-
-					resourceOverflow = 0.0f;
-
-					for(int i = outputsThisTick.Count - 1; i >= 0 ; i--) {
-						// replace script component with null instead of removing outright, then clear after the foreach loop.
-						float newStoredAmount = outputPortion + outputNeedsThisTick[i];
-						float toSend = 0.0f;
-
-						if (newStoredAmount > 0.0f) { // then there is excess, and remainder should be added to overflow
-							toSend = Mathf.Min (Mathf.Abs (outputNeedsThisTick[i]), outputsThisTick[i].resourceInputRate);
-
-							// call send resources function, passing toSend
-							SendResource(toSend, outputsThisTick[i]);
-
-							outputsThisTick.RemoveAt(i);
-							outputNeedsThisTick.RemoveAt(i);
-
-							// pass remainder to overflow
-							resourceOverflow += newStoredAmount;
-
-						} else {
-
-							toSend = Mathf.Min(outputPortion, outputsThisTick[i].resourceInputRate);
-
-							// call send resources function, passing toSend
-							SendResource(toSend, outputsThisTick[i]);
-
-							// pass remainder to overflow
-							resourceOverflow += ( outputPortion - toSend);
-
-							// remove output from this tick list or modify the need to reflect input rate cap.
-							if (outputsThisTick[i].resourceInputRate <= outputPortion) {
-								outputsThisTick.RemoveAt(i);
-								outputNeedsThisTick.RemoveAt(i);
-							} else {
-								outputNeedsThisTick[i] = outputPortion - outputsThisTick[i].resourceInputRate;
-							}
-						}
-
-					}// end of for loop
+				// TODO TODO do logic here for endless source, consumption, below is function for passing
 
 
-					// calculate the available portion to go around
-					outputPortion = resourceOverflow / outputsThisTick.Count;
 
-				} while(outputsThisTick.Count != 0 && resourceOverflow !=0);
-//				Debug.Log ("exited while loop");
 			} // end timer
 		} else {
 			// production type is streamed, make sure to multiply rates by ticks per second and time.deltatime
