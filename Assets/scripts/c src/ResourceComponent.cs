@@ -42,12 +42,17 @@ public class ResourceComponent : MonoBehaviour {
 	public ResourceType inputResourceType;
 	public ResourceType outputResourceType;
 
-	public bool isWorking = true;// is the generator converting resources internally? (generating, consuming, or converting)
+	public bool isTurnedOn = true;// is the generator converting resources internally? (generating, consuming, or converting)
 	public bool isPassing = true; // is the generator passing resources on?
 
 	public float ticksPerSecond = 1.0f; // how often the resource should send their output amount per second.
 	public float efficiencyPercent = 100.0f; // if there is any input lost before being used (either passed or consumed) 
+	public float resourceConversionRate = 0.0f; // how fast input resources are turned into output resources. (still used when there are no input resources)
 	public float outputModifier = 1.0f; 
+		
+	public float resourceOutputRate = 0.0f;
+	public float maxResourceOutputRate = 0.0f; // this can function as a throttle, letting resources pile up in the input tank and restricting output.
+	public float resourceInputRate = 0.0f;
 
 	public float storedInputResource = 0.0f; // all resource objects have onboard storage. conduits just have less.
 	public float maxInputStorage = 0.0f; // incoming resources is what is stored.
@@ -55,50 +60,54 @@ public class ResourceComponent : MonoBehaviour {
 	public float storedOutputResource = 0.0f;
 	public float maxOutputStorage = 0.0f;
 
-	public float resourceInputRate = 0.0f;
-	public float resourceInputThisTick = 0.0f; // used to make sure that multiple sources don't go above input rate
-	public float resourceConversionRate = 0.0f; // how fast input resources are turned into output resources. (still used when there are no input resources)
 
-	public float resourceOutputRate = 0.0f;
-	public float maxResourceOutputRate = 0.0f; // this can function as a throttle, letting resources pile up in the input tank and restricting output.
+	public float resourceInputThisTick = 0.0f; // used to make sure that multiple sources don't go above input rate
+
+	public float componentOutputModifier = 1.0f; // how much the percentage should be multiplied by (i.e. what is 100 percent?)
+	private float componentOutput = 0.0f; // passed to other components when generator is consuming (for example, to add evasion ability to an engine) is calculated with a percent value. (calculated from the outputRate)
+	public bool isActive = false; // true when the resource component is actually working, and false when it is not.
+	private bool workDone = false;
+
 
 	public List<ResourceComponent> targetOutputs = new List<ResourceComponent>();
 
 
 	private float stepTimer = 0.0f;
 	// enforces bound checking for passed variables.
-	void CheckUpperBound(float max, float param) {
+	float CheckUpperBound(float max, float param) {
 		if (param > max) {
 			param = max;
 			Debug.Log("Had to clamp value in " + gameObject + " (too high)");
 		}
+		return param;
 	}
 
-	void CheckLowerBound(float min, float param) {
+	float CheckLowerBound(float min, float param) {
 		if (param < min) {
 			param = min;
 			Debug.Log("Had to clamp value in " + gameObject + " (too low)");
 		}
+		return param;
 	}
 
 	void AddInputResource(float amount) {
 		storedInputResource += amount;
-		CheckUpperBound (maxInputStorage, storedInputResource);
+		storedInputResource = CheckUpperBound (maxInputStorage, storedInputResource);
 	}
 
 	void RemoveInputResource(float amount) {
 		storedInputResource -= amount;
-		CheckLowerBound (0.0f, storedInputResource);
+		storedInputResource = CheckLowerBound (0.0f, storedInputResource);
 	}
 
 	void AddOutputResource(float amount) {
 		storedOutputResource += amount;
-		CheckUpperBound (maxOutputStorage, storedOutputResource);
+		storedOutputResource = CheckUpperBound (maxOutputStorage, storedOutputResource);
 	}
 
 	void RemoveOutputResource(float amount) {
 		storedOutputResource -= amount;
-		CheckLowerBound (0.0f, storedOutputResource);
+		storedOutputResource = CheckLowerBound (0.0f, storedOutputResource);
 	}
 
 	void ConvertResource(float amount) {
@@ -108,10 +117,13 @@ public class ResourceComponent : MonoBehaviour {
 		if (storedOutputResource + outputAmount <= maxOutputStorage && storedInputResource - amount >= 0) {
 			RemoveInputResource (amount);
 			AddOutputResource (outputAmount);
+			workDone = true;
 		} else if (storedOutputResource + outputAmount > maxOutputStorage) {
 			Debug.Log ("Output storage for " + gameObject + " is full, cannot convert.");
+			workDone = false;
 		} else {
 			Debug.Log ("Input storage for " + gameObject + " is too low, cannot convert.");
+			workDone = false;
 		}
 
 	}
@@ -120,6 +132,15 @@ public class ResourceComponent : MonoBehaviour {
 		// consumes resources from the output pool, using the outputrate 
 		// instantiate as a "virtual" function, to be over-ridden by a specific consumption class (i.e. a computer)?
 		// needs to make sure that there is enough input resource to execute (call convert resources, then do custom code) -- done in control loop
+		if (storedOutputResource >= resourceOutputRate) {
+			RemoveOutputResource(resourceOutputRate);
+			componentOutput = (resourceOutputRate / maxResourceOutputRate) * componentOutputModifier;
+			workDone = true;
+		} else {
+			componentOutput = 0.0f;
+			Debug.Log ("Cannot Consume resources, amount of stored output resource too low.");
+			workDone = false;
+		}
 	}
 
 	void GenerateResource() {
@@ -229,9 +250,43 @@ public class ResourceComponent : MonoBehaviour {
 
 
 	void AddOutput(GameObject other) {
+		ResourceComponent component = other.GetComponent<ResourceComponent>();
+		if (component != null) {
+			targetOutputs.Add (component);
+		}
 
 	}
-	
+
+	void RemoveOutput(GameObject other) {
+		ResourceComponent component = other.GetComponent<ResourceComponent>();
+		if (component != null) {
+			targetOutputs.Remove (component);
+		}
+	}
+
+	void IncreaseOutputRate(float amount) {
+		resourceOutputRate += amount;
+		resourceOutputRate = CheckUpperBound (maxResourceOutputRate, resourceOutputRate);
+	}
+
+	void DecreaseOutputRate(float amount) {
+		resourceOutputRate -= amount;
+		resourceOutputRate = CheckLowerBound (0.0f, resourceOutputRate);
+	}
+
+	void SetOutputRate(float amount) {
+		resourceOutputRate = amount;
+		resourceOutputRate = CheckUpperBound (maxResourceOutputRate, resourceOutputRate);
+		resourceOutputRate = CheckLowerBound (0.0f, resourceOutputRate);
+	}
+
+	float GetComponentOutput() { // used to set values for things like evasion chance
+		if (isActive) {
+			return componentOutput;
+		} else {
+			return 0.0f;
+		}
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -248,7 +303,7 @@ public class ResourceComponent : MonoBehaviour {
 				// reset resource this tick
 				resourceInputThisTick = 0.0f;
 				// perform step operations here
-				if (isWorking) {
+				if (isTurnedOn) {
 					if (inputResourceType == ResourceType.none) {
 						GenerateResource();
 					} else { // even if input and output resources are the same, it's still the same convertion process that happens
@@ -257,6 +312,14 @@ public class ResourceComponent : MonoBehaviour {
 							ConsumeResource();
 						}
 					}
+				}
+
+				if (isTurnedOn && workDone) {
+					isActive = true;
+				} else if (isTurnedOn && inputResourceType == ResourceType.none) {
+					isActive = true;
+				} else {
+					isActive = false;
 				}
 
 				if (isPassing) {
