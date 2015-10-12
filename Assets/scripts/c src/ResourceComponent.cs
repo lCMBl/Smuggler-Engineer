@@ -119,10 +119,10 @@ public class ResourceComponent : MonoBehaviour {
 			AddOutputResource (outputAmount);
 			workDone = true;
 		} else if (storedOutputResource + outputAmount > maxOutputStorage) {
-			Debug.Log ("Output storage for " + gameObject + " is full, cannot convert.");
+//			Debug.Log ("Output storage for " + gameObject + " is full, cannot convert.");
 			workDone = false;
 		} else {
-			Debug.Log ("Input storage for " + gameObject + " is too low, cannot convert.");
+//			Debug.Log ("Input storage for " + gameObject + " is too low, cannot convert.");
 			workDone = false;
 		}
 
@@ -138,7 +138,7 @@ public class ResourceComponent : MonoBehaviour {
 			workDone = true;
 		} else {
 			componentOutput = 0.0f;
-			Debug.Log ("Cannot Consume resources, amount of stored output resource too low.");
+//			Debug.Log ("Cannot Consume resources, amount of stored output resource too low.");
 			workDone = false;
 		}
 	}
@@ -249,7 +249,7 @@ public class ResourceComponent : MonoBehaviour {
 	}
 
 
-	void AddOutput(GameObject other) {
+	public void AddOutput(GameObject other) {
 		ResourceComponent component = other.GetComponent<ResourceComponent>();
 		if (component != null) {
 			targetOutputs.Add (component);
@@ -257,30 +257,37 @@ public class ResourceComponent : MonoBehaviour {
 
 	}
 
-	void RemoveOutput(GameObject other) {
+	public void RemoveOutput(GameObject other) {
 		ResourceComponent component = other.GetComponent<ResourceComponent>();
 		if (component != null) {
 			targetOutputs.Remove (component);
 		}
 	}
 
-	void IncreaseOutputRate(float amount) {
+	public void IncreaseOutputRate(float amount) {
 		resourceOutputRate += amount;
 		resourceOutputRate = CheckUpperBound (maxResourceOutputRate, resourceOutputRate);
 	}
 
-	void DecreaseOutputRate(float amount) {
+	public void DecreaseOutputRate(float amount) {
 		resourceOutputRate -= amount;
 		resourceOutputRate = CheckLowerBound (0.0f, resourceOutputRate);
 	}
 
-	void SetOutputRate(float amount) {
+	public void SetOutputRate(float amount) {
 		resourceOutputRate = amount;
 		resourceOutputRate = CheckUpperBound (maxResourceOutputRate, resourceOutputRate);
 		resourceOutputRate = CheckLowerBound (0.0f, resourceOutputRate);
 	}
 
-	float GetComponentOutput() { // used to set values for things like evasion chance
+	public void SetOutputPercent(float percent) {
+		//take a number between zero and one, and set the output as that percentage of the maxoutput
+		percent = CheckUpperBound (1.0f, percent);
+		percent = CheckLowerBound (0.0f, percent);
+		SetOutputRate (percent * maxResourceOutputRate);
+	}
+
+	public float GetComponentOutput() { // used to set values for things like evasion chance
 		if (isActive) {
 			return componentOutput;
 		} else {
