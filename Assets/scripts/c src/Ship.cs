@@ -7,6 +7,7 @@ public class Ship : MonoBehaviour {
 	public float evasionChance = 0.0f;
 	public float calculationTimeRemaining = 60.0f;
 	public GameObject computer;
+	private ResourceComponent computerScript;
 	public GameObject currentMission;
 	public List<GameObject> components = new List<GameObject>();
 	public List<GameObject> damageableComponents = new List<GameObject>();
@@ -20,8 +21,8 @@ public class Ship : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//TODO Refactor this!
-		if (calculationTimeRemaining > 0 && computer.GetComponent<ResourceComponent>().isActive) {
-			calculationTimeRemaining -= Time.deltaTime;
+		if (calculationTimeRemaining > 0 && computerScript.isActive) {
+			calculationTimeRemaining -= Time.deltaTime * computerScript.GetComponentOutput();
 			if (calculationTimeRemaining < 0) {
 				calculationTimeRemaining = 0;
 				currentMission.SendMessage("ReadyToJump");
@@ -77,6 +78,7 @@ public class Ship : MonoBehaviour {
 
 		if (shipComponent.isComputer) {
 			computer = component;
+			computerScript = component.GetComponent<ResourceComponent>();
 		} 
 		
 		if (damageable != null) {
