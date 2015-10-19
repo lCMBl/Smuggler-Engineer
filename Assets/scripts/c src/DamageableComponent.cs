@@ -5,6 +5,8 @@ public class DamageableComponent : MonoBehaviour {
 
 	public float health = 100.0f;
 	public float maxHealth = 100.0f;
+	public int mazeDifficulty = 7;
+	public int mazeSize = 5;
 
 	private ResourceComponent resourceScript;
 
@@ -51,6 +53,14 @@ public class DamageableComponent : MonoBehaviour {
 			resourceScript.SetOutputPercent(health / maxHealth);
 		}
 
+	}
+
+	public int GetMazeDifficulty() {
+		return mazeDifficulty;
+	}
+
+	public int GetMazeSize() {
+		return mazeSize;
 	}
 
 	void SetColor(GameObject targetObject) {

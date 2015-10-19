@@ -13,6 +13,10 @@ public class Ship : MonoBehaviour {
 	public List<GameObject> damageableComponents = new List<GameObject>();
 	public List<GameObject> criticalComponents = new List<GameObject>(); // both are arrays of components. critical components must be intact to jump.
 
+	// for displaying hit notifications
+	private bool displayHitNotification = false;
+	private string hitMessage = "";
+
 	// Use this for initialization
 	void Start () {
 		currentMission = GameObject.FindGameObjectWithTag("Mission");
@@ -64,6 +68,10 @@ public class Ship : MonoBehaviour {
 		int damagedUnit = Random.Range(0, damageableComponents.Count);
 		float damage = Random.Range(10.0f, 100.0f);
 		damageableComponents[damagedUnit].SendMessage("TakeDamage", damage);
+
+		SetHitMessage (damageableComponents[damagedUnit], damage);
+		StartCoroutine ("DisplayHitMessage");
+
 		Debug.Log("component damaged: " + damageableComponents[damagedUnit] + ", for " + damage + " damage.");
 		//	for (var component : GameObject in components) {
 		//		//TODO damage multiple components at once
@@ -114,6 +122,25 @@ public class Ship : MonoBehaviour {
 		}
 		
 		return param;
+	}
+
+	void SetHitMessage(GameObject hit, float amount) {
+		hitMessage = hit.name + " was hit for " + amount + " damage!";
+	}
+
+	IEnumerator DisplayHitMessage() {
+		displayHitNotification = true;
+			yield return new WaitForSeconds(2.0f);
+		displayHitNotification = false;
+
+	}
+
+	// ============================
+	void OnGUI () {
+		GUI.skin.box.wordWrap = true;
+		if (displayHitNotification) {
+			GUI.Box (new Rect (0, Screen.height - 50, 300, 100), hitMessage);
+		}
 	}
 
 

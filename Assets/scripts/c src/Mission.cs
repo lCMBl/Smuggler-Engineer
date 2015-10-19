@@ -77,6 +77,8 @@ public class Mission : MonoBehaviour {
 				Application.LoadLevel(Application.loadedLevelName);
 			}
 		}
+
+		GUILayout.Label ("Press 'L' to lock and unlock the cursor.");
 		
 		GUILayout.EndArea ();
 	}

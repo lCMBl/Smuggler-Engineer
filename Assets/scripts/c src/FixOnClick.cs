@@ -17,6 +17,8 @@ public class FixOnClick : MonoBehaviour {
 			if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
 				DamageableComponent damageComponent = hit.transform.gameObject.GetComponent<DamageableComponent>();
 				if (damageComponent) {
+					// use the target's damageComponent to set the difficulty of the maze
+					repairMazeGenerator.SendMessage("SetMazeDifficulty", new Vector2(damageComponent.GetMazeDifficulty(), damageComponent.GetMazeSize()));
 					repairMazeGenerator.SendMessage("StartMaze", hit.transform.gameObject);
 					//				damageComponent.Repair(rate * Time.deltaTime);
 					//				Debug.Log("Repairing: " + hit.transform.gameObject);

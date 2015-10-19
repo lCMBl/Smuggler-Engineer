@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\scripts\PauseMenu.js" />
      <Compile Include="Assets\scripts\StatusLightFlicker.js" />
      <Compile Include="Assets\scripts\button.js" />
      <Compile Include="Assets\scripts\damageableComponent.js" />
@@ -60,13 +61,13 @@
      <Compile Include="Assets\scripts\resourceConsumer.js" />
      <Compile Include="Assets\scripts\resourceGenerator.js" />
      <Compile Include="Assets\scripts\resourcePasser.js" />
-     <Compile Include="Assets\scripts\room.js" />
      <Compile Include="Assets\scripts\ship.js" />
      <Compile Include="Assets\scripts\shipComponent.js" />
      <Compile Include="Assets\scripts\toolTip.js" />
      <None Include="Assets\Standard Assets\Fonts\OpenSans\License!.txt" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
+     <None Include="Assets\Materials\Shaders\3d-text.shader" />
      <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
      <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
  <Reference Include="UnityEngine.UI">

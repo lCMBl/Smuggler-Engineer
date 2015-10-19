@@ -23,6 +23,7 @@ var currentPosition : Vector2 = Vector2.zero;
 var path : Vector2[] = new Vector2[mazeSteps];
 
 private var firstRun : boolean = true; // bad hack to get the maze position to run only once
+private var runningMaze : boolean = false;
 
 function Start () {
 	player = GameObject.FindGameObjectWithTag("Player");
@@ -34,6 +35,13 @@ function Start () {
 	
 }
 
+//function Update () {
+//	if (runningMaze && Input.GetKeyUp(KeyCode.Escape)) {
+//		ExitMaze();
+//	}
+//
+//}
+
 function StartMaze(target : GameObject) {
 	// unlock cursor
 	Screen.lockCursor = false;
@@ -43,6 +51,9 @@ function StartMaze(target : GameObject) {
 	
 	// generate maze
 	GenerateMaze(mazeSteps);
+	
+	// set the maze to running
+	runningMaze = true;
 	
 	if (firstRun) {
 		// place maze in center of screen
@@ -66,6 +77,9 @@ function PlacePointer() {
 function ResetMaze () {
 	PlacePointer();
 	
+	// disable the pointer briefly
+	repairPointer.SetActive(false);
+	
 	//  clear path, place the pointer, reset path counter
 	for (var wall in GameObject.FindGameObjectsWithTag("MazePath")) {
 		wall.GetComponent(MeshRenderer).enabled = false;
@@ -74,6 +88,9 @@ function ResetMaze () {
 	
 	pathCounter = maxPathCount;
 	
+	// re-enable the pointer after a brief delay
+	yield WaitForSeconds(0.2);
+	repairPointer.SetActive(true);
 }
 
 function ClearData() {
@@ -115,6 +132,9 @@ function ExitMaze() {
 	
 	// clear maze data
 	ClearData();
+	
+	// set maze running to false
+	runningMaze = false;
 }
 
 function CompleteMaze() {
@@ -238,4 +258,13 @@ function ArrayContains(array, object) : boolean {
 		}
 	}
 	return false;
+}
+
+function SetMazeDifficulty (params : Vector2) {
+	mazeSize = params.y;
+	mazeSteps = params.x;
+}
+
+function GetMazeRunning () {
+	return runningMaze;
 }
